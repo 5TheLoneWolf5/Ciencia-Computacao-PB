@@ -9,7 +9,7 @@ def get_file_lines(num):
 		with open("list_files.txt", "r") as file:
 			for line in file:
 				lines.append(line)
-	print(len(lines))
+	# print(len(lines))
 	return lines
 '''
 
@@ -32,7 +32,7 @@ def bubble_sort(list):
 	for i in range(size):
 		for j in range(0, size-i-1):
 			if list[j] > list[j+1]:
-				list[j], list[j+1] = list[j+1], listj]
+				list[j], list[j+1] = list[j+1], list[j]
 
 bubble_sort(file)
 
