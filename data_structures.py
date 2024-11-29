@@ -4,6 +4,12 @@ import timeit
 import tracemalloc
 
 setup='''
+
+class Node:
+	def __init__(self, value):
+		self.value = value
+		self.next = None
+
 def get_file_lines(num):
         lines = []
         for i in range(num):
@@ -11,15 +17,16 @@ def get_file_lines(num):
                         for line in file:
                                 lines.append(line)
         return lines
+
 '''
 
-def define_input_size(dataStrucName, instructions):
+def define_input_size(dataStrucName, extraSetup, instructions):
 	item = 1
 
 	print("--- " + dataStrucName + " ---\n")
-	while not item > 8:
+	while not item > 16:
 		tracemalloc.start()
-		timeTaken = timeit.timeit(instructions, setup=setup + f"input = {item}\nfile = get_file_lines(input)", number=10)
+		timeTaken = timeit.timeit(instructions, setup=setup + f"input = {item}\nfile = get_file_lines(input)\n{extraSetup}", number=10)
 		print("Memoria: ", tracemalloc.get_traced_memory())
 		tracemalloc.stop()
 		print(f"Tempo (AVG): {timeTaken} - {item}x a entrada.")
@@ -90,6 +97,8 @@ hashTable = HashTable(len(file))
 for idx, i in enumerate(file):
 	hashTable.insert(idx, file[idx])
 
+''', '''
+
 hashTable.search(1)
 hashTable.search(100)
 hashTable.search(1000)
@@ -100,15 +109,19 @@ hashTable.search(hashTable.getSize() - 1)
 
 define_input_size("Hashtable (com insercao e delecao)", hashtable_setup + '''
 
+hashTable_ex = HashTable(len(file))
+
+for idx, i in enumerate(file):
+	hashTable_ex.insert(idx, file[idx])
+
+''', '''
+
 import csv
 
 with open("insert_delete_files.txt", mode='r') as i_d_file:
+
 	csvFile = csv.reader(i_d_file, delimiter=";")
 	next(csvFile, None)
-
-	hashTable_ex = HashTable(len(file))
-	for idx, i in enumerate(file):
-		hashTable_ex.insert(idx, file[idx])
 
 	for lines in csvFile:
 		# Removing last number of each index.
@@ -125,86 +138,109 @@ with open("insert_delete_files.txt", mode='r') as i_d_file:
 stack_setup='''
 
 class Stack:
-    def __init__(self, size_limit):
-        self.size_limit = size_limit
-        self.stack = [None] * size_limit
-        self.top = -1
+    def __init__(self):
+        self.head = Node("head")
+        self.size = 0
 
-    def is_empty(self):
-        return self.top == -1
+    def __str__(self):
+    	adj = self.head.next
+    	out = ""
+    	while adj:
+    		out += str(adj.value) + " "
+    		adj = adj.next
+    	return out[:-2]
 
-    def is_full(self):
-        return self.size_limit <= self.size()
+    def getSize(self):
+        return self.size
 
-    def size(self):
-        if self.is_empty():
-            return -1
-
-        return self.top + 1
+    def isEmpty(self):
+    	return self.size == 0
 
     def peek(self):
-        if self.is_empty():
-            print("Stack is empty.")
+        if self.isEmpty():
+            return "Stack is empty."
 
-        return self.stack[self.top]
+        return self.head.next.value
 
-    def push(self, item):
-        if self.is_full():
-            return "Stack is full."
-
-        self.top += 1
-        self.stack[self.top] = item
-
-        return self.stack[self.top]
+    def push(self, value):
+    	node = Node(value)
+    	node.next = self.head.next
+    	self.head.next = node
+    	self.size += 1
 
     def pop(self):
-        if self.is_empty():
-            return "Stack is already empty."
-        self.stack[self.top] = None
-        self.top -= 1
+    	if self.isEmpty():
+    		raise Exception("Stack is already empty.")
+    	remove = self.head.next
+    	self.head.next = remove.next
+    	self.size -= 1
 
-        return self.stack[self.top]
+    	return remove.value
 
 '''
 
 define_input_size("Pilha", stack_setup + '''
 
-stack_1 = Stack(len(file))
-stack_2 = Stack(len(file))
-stack_3 = Stack(len(file))
-stack_4 = Stack(len(file))
-stack_5 = Stack(len(file))
+stack = Stack()
 
 for i in file:
-	stack_1.push(i)
-	stack_2.push(i)
-	stack_3.push(i)
-	stack_4.push(i)
-	stack_5.push(i)
+	stack.push(i)
 
-for i in range(1):
-	stack_1.pop()
-stack_1.peek()
+''', '''
 
-for i in range(100):
-	stack_2.pop()
-stack_2.peek()
+tempData = []
 
-for i in range(1000):
-	stack_3.pop()
-stack_3.peek()
+for i in range(stack.getSize() - 2):
+	tempData.append(stack.peek())
+	stack.pop()
+stack.peek()
 
-for i in range(5000):
-	stack_4.pop()
-stack_4.peek()
+tempData.reverse()
 
-for i in range(stack_5.size() - 1):
-	stack_5.pop()
-stack_5.peek()
+for i in tempData:
+	stack.push(i)
+
+tempData = []
+
+for i in range(stack.getSize() - 101):
+	tempData.append(stack.peek())
+	stack.pop()
+stack.peek()
+
+tempData.reverse()
+
+for i in tempData:
+	stack.push(i)
+
+tempData = []
+
+for i in range(stack.getSize() - 1001):
+	tempData.append(stack.peek())
+	stack.pop()
+stack.peek()
+
+tempData = []
+
+for i in range(stack.getSize() - 5001):
+	tempData.append(stack.peek())
+	stack.pop()
+stack.peek()
+
+tempData.reverse()
+
+for i in tempData:
+	stack.push(i)
 
 ''')
 
 define_input_size("Pilha (com insercao e delecao)", stack_setup + '''
+
+stack_ex = Stack()
+
+for i in file:
+	stack_ex.push(i)
+
+''', '''
 
 import csv
 
@@ -212,21 +248,38 @@ with open("insert_delete_files.txt", mode='r') as i_d_file:
 	csvFile = csv.reader(i_d_file, delimiter=";")
 	next(csvFile, None)
 
-	stack_ex = Stack(len(file))
-	for i in file:
-		stack_ex.push(i)
-
 	for lines in csvFile:
 		# Removing last number of each index.
 		indexAdd = lines[0][:-1]
 		filenameAdd = lines[2]
 		indexDel = lines[5][:-1]
-		for i in range(int(indexAdd) + 1):
+
+		# Insert
+
+		tempData = []
+		
+		for i in range((stack_ex.getSize() - 1) - (int(indexAdd) + 1)):
+			tempData.append(stack_ex.peek())
 			stack_ex.pop()
 		stack_ex.push(indexAdd)
 
-		for i in range(int(indexDel) + 1):
+		tempData.reverse()
+
+		for i in tempData:
+			stack_ex.push(i)
+
+		# Delete
+
+		tempData = []
+		
+		for i in range((stack_ex.getSize() - 1) - (int(indexAdd) + 1)):
+			tempData.append(stack_ex.peek())
 			stack_ex.pop()
+
+		tempData.reverse()
+
+		for i in tempData:
+			stack_ex.push(i)
 
 ''')
 
@@ -235,104 +288,125 @@ with open("insert_delete_files.txt", mode='r') as i_d_file:
 queue_setup='''
 
 class Queue:
-    def __init__(self, capacity = 10):
-        self.capacity = capacity
-        self.items = [None] * capacity
-        self.start = 0
-        self.end = 0
-        self.size = 0
+    def __init__(self):
+        self.front = None
+        self.rear = None
+        self.length = 0
 
-    def is_empty(self):
-        return self.size == 0
-
-    def is_full(self):
-        return self.size == self.capacity
-
-    def enqueue(self, item):
-
-        if self.is_full():
-            print("Fila cheia.")
-            return
-
-        self.items[self.end] = item
-        self.end += 1
-        self.size += 1
-
-        if self.end == self.capacity:
-            self.end = 0
+    def enqueue(self, value):
+    	new_node = Node(value)
+    	if self.rear is None:
+    		self.front = self.rear = new_node
+    		self.length += 1
+    		return
+    	self.rear.next = new_node
+    	self.rear = new_node
+    	self.length += 1
 
     def dequeue(self):
-        # if self.is_empty():
-           #  print("Fila vazia.")
-           #  return
+        if self.isEmpty():
+            return "Queue is empty."
 
-        item = self.items[self.start]
-        self.items[self.start] = None
-        self.start += 1
-        self.size -= 1
+        temp = self.front
+        self.front = temp.next
+        self.length -= 1
 
-        if self.start == self.capacity:
-            self.start = 0
+        if self.front is None:
+        	self.rear = None
 
-        return item
+        return temp.value
 
     def peek(self):
-        # if self.is_empty():
-            # print("Fila vazia")
-            # return None
-        return self.items[self.start]
+        if self.isEmpty():
+            return "Queue is empty."
+        return self.front.value
 
     def getSize(self):
-        return self.size
+        return self.length
+
+    def isEmpty(self):
+    	return self.length == 0
 
     def display(self):
-        if self.is_empty():
-            print("Fila vazia.")
-            return
-        else:
-            for i in range(self.size):
-                index = (self.start + i) % self.capacity
-                print(self.items[index], end=" ")
+    	temp = self.front
+    	while temp != None:
+    		print(temp.value, end=" ")
+    		temp = temp.next
+
+    def test(self):
+    	print(self.rear.value)
+
 '''
 
 define_input_size("Fila", queue_setup + '''
 
-queue_1 = Queue(len(file))
-queue_2 = Queue(len(file))
-queue_3 = Queue(len(file))
-queue_4 = Queue(len(file))
-queue_5 = Queue(len(file))
+queue = Queue()
 
 for i in file:
-	queue_1.enqueue(i)
-	queue_2.enqueue(i)
-	queue_3.enqueue(i)
-	queue_4.enqueue(i)
-	queue_5.enqueue(i)
+	queue.enqueue(i)
+
+''', '''
+
+tempData = []
 
 for i in range(1):
-	queue_1.dequeue()
-queue_1.peek()
+	tempData.append(queue.peek())
+	queue.dequeue()
+queue.peek()
+
+for i in tempData:
+	queue.enqueue(i)
+
+tempData = []
 
 for i in range(100):
-	queue_2.dequeue()
-queue_2.peek()
+	tempData.append(queue.peek())
+	queue.dequeue()
+queue.peek()
+
+for i in tempData:
+	queue.enqueue(i)
+
+tempData = []
 
 for i in range(1000):
-	queue_3.dequeue()
-queue_3.peek()
+	tempData.append(queue.peek())
+	queue.dequeue()
+queue.peek()
+
+for i in tempData:
+	queue.enqueue(i)
+
+tempData = []
 
 for i in range(5000):
-	queue_4.dequeue()
-queue_4.peek()
+	tempData.append(queue.peek())
+	queue.dequeue()
+queue.peek()
 
-for i in range(queue_5.getSize() - 1):
-	queue_5.dequeue()
-queue_5.peek()
+for i in tempData:
+	queue.enqueue(i)
+
+tempData = []
+
+for i in range(queue.getSize() - 1):
+	tempData.append(queue.peek())
+	queue.dequeue()
+queue.peek()
+
+for i in tempData:
+	queue.enqueue(i)
 
 ''')
 
 define_input_size("Fila (com insercao e delecao)", queue_setup + '''
+
+queue_ex = Queue()
+
+for i in file:
+	queue_ex.enqueue(i)
+
+''', '''
 
 import csv
 
@@ -340,19 +414,33 @@ with open("insert_delete_files.txt", mode='r') as i_d_file:
 	csvFile = csv.reader(i_d_file, delimiter=";")
 	next(csvFile, None)
 
-	queue_ex = Queue(len(file))
-	for i in file:
-		queue_ex.enqueue(i)
-
 	for lines in csvFile:
 		# Removing last number of each index.
 		indexAdd = lines[0][:-1]
 		filenameAdd = lines[2]
 		indexDel = lines[5][:-1]
+		
+		# Insert
+		
+		tempData = []
+		
 		for i in range(int(indexAdd) + 1):
+			tempData.append(queue_ex.peek())
 			queue_ex.dequeue()
-		queue_ex.enqueue(indexAdd)
-
+		queue_ex.enqueue(filenameAdd)
+		
+		for i in tempData:
+		    queue_ex.enqueue(i)
+		
+		# Delete
+		
+		tempData = []
+		
 		for i in range(int(indexDel) + 1):
+			tempData.append(queue_ex.peek())
 			queue_ex.dequeue()
+
+		for i in tempData:
+			queue_ex.enqueue(i)
+			
 ''')
