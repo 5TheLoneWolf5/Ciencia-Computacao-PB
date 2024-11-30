@@ -22,9 +22,12 @@ def get_file_lines(num):
 
 def define_input_size(dataStrucName, extraSetup, instructions):
 	item = 1
+	iterator = 64
+	if "(com insercao e delecao)" in dataStrucName:
+		iterator = 8
 
 	print("--- " + dataStrucName + " ---\n")
-	while not item > 16:
+	while not item > iterator:
 		tracemalloc.start()
 		timeTaken = timeit.timeit(instructions, setup=setup + f"input = {item}\nfile = get_file_lines(input)\n{extraSetup}", number=10)
 		print("Memoria: ", tracemalloc.get_traced_memory())
@@ -195,7 +198,7 @@ for i in range(stack.getSize() - 2):
 	stack.pop()
 stack.peek()
 
-tempData.reverse()
+# tempData.reverse()
 
 for i in tempData:
 	stack.push(i)
@@ -207,7 +210,7 @@ for i in range(stack.getSize() - 101):
 	stack.pop()
 stack.peek()
 
-tempData.reverse()
+# tempData.reverse()
 
 for i in tempData:
 	stack.push(i)
@@ -219,6 +222,11 @@ for i in range(stack.getSize() - 1001):
 	stack.pop()
 stack.peek()
 
+# tempData.reverse()
+
+for i in tempData:
+	stack.push(i)
+
 tempData = []
 
 for i in range(stack.getSize() - 5001):
@@ -226,7 +234,7 @@ for i in range(stack.getSize() - 5001):
 	stack.pop()
 stack.peek()
 
-tempData.reverse()
+# tempData.reverse()
 
 for i in tempData:
 	stack.push(i)
@@ -263,7 +271,7 @@ with open("insert_delete_files.txt", mode='r') as i_d_file:
 			stack_ex.pop()
 		stack_ex.push(indexAdd)
 
-		tempData.reverse()
+		# tempData.reverse()
 
 		for i in tempData:
 			stack_ex.push(i)
@@ -276,7 +284,7 @@ with open("insert_delete_files.txt", mode='r') as i_d_file:
 			tempData.append(stack_ex.peek())
 			stack_ex.pop()
 
-		tempData.reverse()
+		# tempData.reverse()
 
 		for i in tempData:
 			stack_ex.push(i)
@@ -332,9 +340,6 @@ class Queue:
     	while temp != None:
     		print(temp.value, end=" ")
     		temp = temp.next
-
-    def test(self):
-    	print(self.rear.value)
 
 '''
 
